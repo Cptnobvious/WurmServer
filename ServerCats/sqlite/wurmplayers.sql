@@ -12,7 +12,7 @@ CREATE TABLE MAP_ANNOTATIONS
 );
 
 CREATE TABLE CHAMPIONS(
-    ID                      INTEGER       PRIMARY KEY,
+    ID                      INTEGER       NOT NULL PRIMARY KEY,
     WURMID                  BIGINT        NOT NULL DEFAULT 0,
     NAME                    VARCHAR(40)   NOT NULL DEFAULT "",
     POINTS                  INTEGER       NOT NULL DEFAULT 0,
@@ -433,7 +433,7 @@ CREATE TABLE BANNEDIPS
 
 CREATE TABLE GMMESSAGES
 (
-    ID                      INTEGER       NOT NULL PRIMARY KEY,
+    ID                      INTEGER       NOT NULL,
     TIME                    BIGINT        NOT NULL,
     SENDER                  VARCHAR(200)  NOT NULL,
     MESSAGE                 VARCHAR(200)  NOT NULL
@@ -441,7 +441,7 @@ CREATE TABLE GMMESSAGES
 
 CREATE TABLE MGMTMESSAGES
 (
-    ID                      INTEGER       NOT NULL PRIMARY KEY,
+    ID                      INTEGER       NOT NULL,
     TIME                    BIGINT        NOT NULL,
     SENDER                  VARCHAR(200)  NOT NULL,
     MESSAGE                 VARCHAR(200)  NOT NULL
@@ -528,7 +528,7 @@ CREATE TABLE PLAYEREHISTORYEMAIL
 );
 CREATE TABLE PERMISSIONSHISTORY
 (
-    PK                      INTEGER           NOT NULL PRIMARY KEY,
+    PK                      INTEGER       NOT NULL,
     OBJECTID                BIGINT        NOT NULL,
     EVENTDATE               BIGINT        NOT NULL,
     PLAYERID                BIGINT        NOT NULL,

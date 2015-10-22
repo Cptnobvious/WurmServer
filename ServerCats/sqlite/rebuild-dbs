@@ -1,0 +1,74 @@
+#!/usr/bin/env sh
+echo This script deletes and recreates all Wurm databases in the current directory from the database
+echo creation and insertion scripts.
+echo Call with -noconfirm to skip confirmation
+echo Call with -nopause to skip the pause at the end
+
+SQLITE_CMD=./sqlite3
+PAUSE=1
+CONFIRM=1
+for arg in "$@"
+do
+	if [ "$arg" = "-noconfirm" ]; then
+		CONFIRM=0
+	elif [ "$arg" = "-nopause" ]; then
+		PAUSE=0
+	fi
+done
+
+pauseAndExit() {
+	if [ $PAUSE -eq 1 ]; then
+		echo "Press [Enter] to continue..."
+		read _
+	fi
+	exit $1
+}
+
+# Check that the sqlite3 executable exists
+if [ ! -f $SQLITE_CMD ]; then
+	echo "ERROR: Could not find sqlite executable $SQLITE_CMD"
+	pauseAndExit 1
+fi
+
+if [ $CONFIRM -eq 1 ]; then
+	echo "Are you sure you want to delete and recreate all dbs (y/[n])?"
+	read ANSWER
+	if [ "$ANSWER" != "y" ]; then
+		exit
+	fi
+fi
+
+echo Checking rebuild scripts exist...
+DB_NAMES="wurmcreatures wurmdeities wurmeconomy wurmitems wurmlogin wurmlogs wurmplayers wurmtemplates wurmzones"
+
+ERR=0
+for dbName in $DB_NAMES
+do
+	if [ ! -f $dbName.sql ]; then
+		ERR=1
+		echo ERROR: Creation script $dbName.sql does not exist
+	fi
+	if [ ! -f insert$dbName.sql ]; then
+		ERR=1
+		echo ERROR: Insertion script insert$dbName.sql does not exist
+	fi
+done
+if [ $ERR -eq 1 ]; then
+	pauseAndExit 1
+fi
+
+echo Rebuilding databases...
+for dbName in $DB_NAMES
+do
+	if [ -f $dbName.db ]; then
+		rm $dbName.db
+	fi
+	$SQLITE_CMD -init $dbName.sql $dbName.db ""
+	$SQLITE_CMD $dbName.db < insert$dbName.sql
+	if [ ! -f $dbName.db ]; then
+		echo ERROR: $dbName.db was not rebuilt
+		ERR=1
+	fi
+done
+
+pauseAndExit $ERR
